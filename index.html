@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Responda e Ganhe</title>
+
+<style>
+*{box-sizing:border-box;font-family:Arial}
+body{
+  min-height:100vh;
+  background:linear-gradient(270deg,#0f2027,#203a43,#2c5364);
+  background-size:600% 600%;
+  animation:fundo 12s ease infinite;
+  padding:20px;
+}
+@keyframes fundo{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+.container{
+  max-width:420px;margin:auto;background:#fff;
+  border-radius:18px;padding:20px;
+  box-shadow:0 20px 50px rgba(0,0,0,.4);
+  animation:flutuar 4s ease-in-out infinite;
+}
+@keyframes flutuar{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+
+h1{text-align:center}
+
+.saldo{
+  background:linear-gradient(135deg,#2ecc71,#27ae60);
+  color:#fff;
+  padding:14px;
+  border-radius:14px;
+  text-align:center;
+  font-size:18px;
+  font-weight:bold;
+}
+
+.progresso{
+  width:100%;
+  height:10px;
+  background:#ddd;
+  border-radius:10px;
+  margin:10px 0;
+  overflow:hidden;
+}
+.progresso span{
+  display:block;height:100%;width:0%;
+  background:linear-gradient(90deg,#00ffcc,#00ff66);
+  transition:.4s;
+}
+
+button{
+  width:100%;padding:14px;margin-top:10px;
+  border:none;border-radius:14px;
+  font-size:16px;cursor:pointer;
+}
+.primary{
+  background:linear-gradient(135deg,#00c853,#64dd17);
+  color:#fff;
+}
+.vip{
+  background:linear-gradient(135deg,#ff9800,#ff5722);
+  color:#fff;
+}
+.card{
+  background:#f2f2f2;padding:14px;
+  border-radius:14px;margin-top:14px;
+}
+
+.ganho{
+  position:fixed;
+  top:55%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:36px;
+  color:#00e676;
+  font-weight:bold;
+  animation:subir 1.2s forwards;
+  pointer-events:none;
+}
+@keyframes subir{
+  0%{opacity:0;transform:translate(-50%,0)}
+  20%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-140px)}
+}
+
+/* 💸 DINHEIRO CAINDO */
+.money{
+  position:fixed;
+  top:-40px;
+  font-size:28px;
+  pointer-events:none;
+  animation:moneyFall linear forwards;
+}
+@keyframes moneyFall{
+  to{
+    transform:translateY(110vh) rotate(360deg);
+    opacity:0;
+  }
+}
+
+.modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.7);
+  justify-content:center;align-items:center;
+}
+.modal-content{
+  background:#fff;padding:22px;
+  border-radius:16px;width:90%;max-width:340px;
+  text-align:center;
+}
+input{
+  width:100%;padding:12px;margin:10px 0;
+  text-align:center;font-size:16px;
+}
+small{display:block;text-align:center;color:#666;margin-top:10px}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>💰 Responda e Ganhe</h1>
+
+<div class="saldo">Saldo: R$ <span id="saldo">0</span></div>
+<div class="progresso"><span id="barra"></span></div>
+
+<div id="pergunta"></div>
+<div id="respostas"></div>
+
+<button class="primary" onclick="sacar()">💸 Sacar</button>
+
+<div class="card">
+<b><div class="card">
+  <b>Planos VIP</b><br><br>
+
+  <b>VIP 1</b> = Cada pesquisa vale <b>R$1</b>, pode fazer
+  <b>até 30 pesquisas por dia</b>, valor <b>R$20 💲</b><br><br>
+
+  <b>VIP 2</b> = Cada pesquisa vale <b>R$3</b>, pode fazer
+  <b>até 60 pesquisas</b>, valor <b>R$40 💲</b><br><br>
+
+  <b>VIP 3</b> = Cada pesquisa vale <b>R$5</b>, pode fazer
+  <b>pesquisas ilimitadas</b>, valor <b>R$80 💲</b><br><br>
+
+  <button class="vip" onclick="abrirVIP(1)">VIP 1</button>
+  <button class="vip" onclick="abrirVIP(2)">VIP 2</button>
+  <button class="vip" onclick="abrirVIP(3)">VIP 3</button>
+</div></b><br><br>
+
+
+<small>Plataforma em desenvolvimento</small>
+</div>
+
+<div id="modalVIP" class="modal">
+  <div class="modal-content">
+    <h3 id="vipTitulo"></h3>
+    <p>PIX</p>
+    <input value="62811519335" readonly>
+    <button class="primary" onclick="copiarPix()">Copiar PIX</button>
+    <button onclick="fecharModal()">Fechar</button>
+  </div>
+</div>
+
+<script>
+let saldo=0, indice=0;
+
+const perguntas=[
+ {q:"Maior planeta do sistema solar?",r:["Terra","Júpiter","Marte"],c:1},
+ {q:"9 x 7 = ?",r:["56","63","72"],c:1},
+ {q:"Capital do Brasil?",r:["Rio","Brasília","SP"],c:1},
+ {q:"HTML é linguagem de?",r:["Programação","Marcação","Banco"],c:1},
+ {q:"Quantos dias tem um ano?",r:["364","365","366"],c:1}
+];
+
+function somGanho(){
+ const ctx=new (window.AudioContext||window.webkitAudioContext)();
+ const o=ctx.createOscillator();
+ o.frequency.value=900;
+ o.connect(ctx.destination);
+ o.start();
+ setTimeout(()=>o.stop(),120);
+}
+
+function dinheiroCaindo(){
+ for(let i=0;i<12;i++){
+  const m=document.createElement("div");
+  m.className="money";
+  m.innerText="💵";
+  m.style.left=Math.random()*100+"vw";
+  m.style.animationDuration=(Math.random()*2+2)+"s";
+  document.body.appendChild(m);
+  setTimeout(()=>m.remove(),4000);
+ }
+}
+
+function atualizar(){
+ document.getElementById("saldo").innerText=saldo;
+ document.getElementById("barra").style.width=(saldo/25*100)+"%";
+}
+
+function mostrar(){
+ if(saldo>=25||indice>=perguntas.length){
+  pergunta.innerHTML="<b>🎉 Limite atingido! Compre um VIP.</b>";
+  respostas.innerHTML="";
+  return;
+ }
+ const p=perguntas[indice];
+ pergunta.innerHTML="<b>"+p.q+"</b>";
+ respostas.innerHTML="";
+ p.r.forEach((res,i)=>{
+  respostas.innerHTML+=`<button onclick="responder(${i})">${res}</button>`;
+ });
+}
+
+function responder(i){
+ const p=perguntas[indice];
+ if(i===p.c){
+  saldo+=5;
+  atualizar();
+  somGanho();
+  dinheiroCaindo();
+  const g=document.createElement("div");
+  g.className="ganho";
+  g.innerText="+R$5";
+  document.body.appendChild(g);
+  setTimeout(()=>g.remove(),1200);
+ }
+ indice++;
+ mostrar();
+}
+
+function sacar(){
+ if(saldo<25){alert("Saldo mínimo R$25");return;}
+ alert("Para sacar, adquira um VIP.");
+}
+function abrirVIP(n){
+ vipTitulo.innerText="VIP "+n;
+ modalVIP.style.display="flex";
+}
+function fecharModal(){modalVIP.style.display="none";}
+function copiarPix(){
+ navigator.clipboard.writeText("62811519335");
+ alert("PIX copiado!");
+}
+
+mostrar();
+</script>
+
+</body>
+</html>
+ 
