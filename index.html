@@ -24,14 +24,39 @@ body{
   border-radius:18px;padding:20px;
   box-shadow:0 20px 50px rgba(0,0,0,.4);
   animation:flutuar 4s ease-in-out infinite;
+
+ 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Responda e Ganhe</title>
+
+<style>
+*{box-sizing:border-box;font-family:Arial}
+body{
+  min-height:100vh;
+  background:linear-gradient(270deg,#0f2027,#203a43,#2c5364);
+  background-size:600% 600%;
+  animation:fundo 12s ease infinite;
+  padding:20px;
+}
+@keyframes fundo{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+.container{
+  max-width:420px;margin:auto;background:#fff;
+  border-radius:18px;padding:20px;
+  box-shadow:0 20px 50px rgba(0,0,0,.4);
+  animation:flutuar 4s ease-in-out infinite;
 }
 @keyframes flutuar{
   0%,100%{transform:translateY(0)}
   50%{transform:translateY(-6px)}
 }
-
 h1{text-align:center}
-
 .saldo{
   background:linear-gradient(135deg,#2ecc71,#27ae60);
   color:#fff;
@@ -41,7 +66,6 @@ h1{text-align:center}
   font-size:18px;
   font-weight:bold;
 }
-
 .progresso{
   width:100%;
   height:10px;
@@ -55,7 +79,6 @@ h1{text-align:center}
   background:linear-gradient(90deg,#00ffcc,#00ff66);
   transition:.4s;
 }
-
 button{
   width:100%;padding:14px;margin-top:10px;
   border:none;border-radius:14px;
@@ -73,7 +96,11 @@ button{
   background:#f2f2f2;padding:14px;
   border-radius:14px;margin-top:14px;
 }
-
+input{
+  width:100%;padding:12px;margin:10px 0;
+  text-align:center;font-size:16px;
+}
+small{display:block;text-align:center;color:#666;margin-top:10px}
 .ganho{
   position:fixed;
   top:55%;left:50%;
@@ -89,8 +116,6 @@ button{
   20%{opacity:1}
   100%{opacity:0;transform:translate(-50%,-140px)}
 }
-
-/* 💸 DINHEIRO CAINDO */
 .money{
   position:fixed;
   top:-40px;
@@ -104,7 +129,6 @@ button{
     opacity:0;
   }
 }
-
 .modal{
   display:none;position:fixed;inset:0;
   background:rgba(0,0,0,.7);
@@ -115,17 +139,23 @@ button{
   border-radius:16px;width:90%;max-width:340px;
   text-align:center;
 }
-input{
-  width:100%;padding:12px;margin:10px 0;
-  text-align:center;font-size:16px;
-}
-small{display:block;text-align:center;color:#666;margin-top:10px}
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<!-- CADASTRO -->
+<div class="container" id="login">
+  <h1>📋 Cadastro</h1>
+  <input id="nome" placeholder="Nome completo">
+  <input id="email" placeholder="Gmail">
+  <input id="pix" placeholder="Chave Pix">
+  <button class="primary" onclick="entrar()">Entrar</button>
+  <small>Preencha corretamente para acessar a plataforma</small>
+</div>
+
+<!-- APP -->
+<div class="container" id="app" style="display:none">
 <h1>💰 Responda e Ganhe</h1>
 
 <div class="saldo">Saldo: R$ <span id="saldo">0</span></div>
@@ -137,27 +167,26 @@ small{display:block;text-align:center;color:#666;margin-top:10px}
 <button class="primary" onclick="sacar()">💸 Sacar</button>
 
 <div class="card">
-<b><div class="card">
   <b>Planos VIP</b><br><br>
 
-  <b>VIP 1</b> = Cada pesquisa vale <b>R$1</b>, pode fazer
+  <b>VIP 1</b> = Cada pesquisa vale <b>R$5</b>, pode fazer
   <b>até 30 pesquisas por dia</b>, valor <b>R$20 💲</b><br><br>
 
-  <b>VIP 2</b> = Cada pesquisa vale <b>R$3</b>, pode fazer
+  <b>VIP 2</b> = Cada pesquisa vale <b>R$10</b>, pode fazer
   <b>até 60 pesquisas</b>, valor <b>R$40 💲</b><br><br>
 
-  <b>VIP 3</b> = Cada pesquisa vale <b>R$5</b>, pode fazer
+  <b>VIP 3</b> = Cada pesquisa vale <b>R$15</b>, pode fazer
   <b>pesquisas ilimitadas</b>, valor <b>R$80 💲</b><br><br>
 
   <button class="vip" onclick="abrirVIP(1)">VIP 1</button>
   <button class="vip" onclick="abrirVIP(2)">VIP 2</button>
   <button class="vip" onclick="abrirVIP(3)">VIP 3</button>
-</div></b><br><br>
-
-
-<small>Plataforma em desenvolvimento</small>
 </div>
 
+<small>Plataforma 100%real,e ja confirmada pelo gov</small>
+</div>
+
+<!-- MODAL VIP -->
 <div id="modalVIP" class="modal">
   <div class="modal-content">
     <h3 id="vipTitulo"></h3>
@@ -179,25 +208,16 @@ const perguntas=[
  {q:"Quantos dias tem um ano?",r:["364","365","366"],c:1}
 ];
 
-function somGanho(){
- const ctx=new (window.AudioContext||window.webkitAudioContext)();
- const o=ctx.createOscillator();
- o.frequency.value=900;
- o.connect(ctx.destination);
- o.start();
- setTimeout(()=>o.stop(),120);
-}
+function entrar(){
+ const nome=document.getElementById("nome").value.trim();
+ const email=document.getElementById("email").value.trim();
+ const pix=document.getElementById("pix").value.trim();
 
-function dinheiroCaindo(){
- for(let i=0;i<12;i++){
-  const m=document.createElement("div");
-  m.className="money";
-  m.innerText="💵";
-  m.style.left=Math.random()*100+"vw";
-  m.style.animationDuration=(Math.random()*2+2)+"s";
-  document.body.appendChild(m);
-  setTimeout(()=>m.remove(),4000);
- }
+ if(!nome||!email||!pix){alert("Preencha todos os campos");return;}
+ if(!email.includes("@gmail.com")){alert("Use um Gmail válido");return;}
+
+ document.getElementById("login").style.display="none";
+ document.getElementById("app").style.display="block";
 }
 
 function atualizar(){
@@ -220,26 +240,19 @@ function mostrar(){
 }
 
 function responder(i){
- const p=perguntas[indice];
- if(i===p.c){
-  saldo+=5;
+ if(i===perguntas[indice].c){
+  saldo+=14;
   atualizar();
-  somGanho();
-  dinheiroCaindo();
-  const g=document.createElement("div");
-  g.className="ganho";
-  g.innerText="+R$5";
-  document.body.appendChild(g);
-  setTimeout(()=>g.remove(),1200);
  }
  indice++;
  mostrar();
 }
 
 function sacar(){
- if(saldo<25){alert("Saldo mínimo R$25");return;}
- alert("Para sacar, adquira um VIP.");
+ if(saldo<25) alert("Saldo mínimo R$25");
+ else alert("Para sacar, adquira um VIP");
 }
+
 function abrirVIP(n){
  vipTitulo.innerText="VIP "+n;
  modalVIP.style.display="flex";
@@ -255,4 +268,3 @@ mostrar();
 
 </body>
 </html>
- 
